@@ -1,6 +1,6 @@
-import "package:flutter/material.dart";
+import 'package:flutter/material.dart';
 
-import "app_colors.dart";
+import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData get light => ThemeData(
@@ -15,7 +15,17 @@ class AppTheme {
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(60),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-            textStyle: const TextStyle(fontSize: 22),
+            textStyle: const TextStyle(fontSize: 18),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: AppColors.navy,
+            minimumSize: const Size.fromHeight(60),
+            side: const BorderSide(color: AppColors.navy, width: 2),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+            textStyle: const TextStyle(fontSize: 18),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
@@ -25,6 +35,10 @@ class AppTheme {
             borderRadius: BorderRadius.circular(9),
             borderSide: BorderSide.none,
           ),
+        ),
+        navigationBarTheme: const NavigationBarThemeData(
+          backgroundColor: AppColors.mint,
+          indicatorColor: Colors.white,
         ),
       );
 }

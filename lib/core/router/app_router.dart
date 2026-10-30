@@ -9,6 +9,7 @@ import '../../features/notifications/presentation/pages/notifications_page.dart'
 import '../../features/sedes/presentation/pages/sede_detail_page.dart';
 import '../../features/sedes/presentation/pages/sedes_page.dart';
 import '../../features/sync/presentation/pages/sync_page.dart';
+import '../../features/triage/presentation/pages/new_patient_page.dart';
 import '../../features/triage/presentation/pages/triage_result_page.dart';
 import '../../features/triage/presentation/pages/vitals_page.dart';
 import '../../features/triage/presentation/pages/waiting_list_page.dart';
@@ -24,7 +25,11 @@ final appRouter = GoRouter(
           path: '/pacientes',
           builder: (_, __) => const WaitingListPage(),
           routes: [
-            GoRoute(path: 'signos', builder: (_, __) => const VitalsPage()),
+            GoRoute(path: 'nuevo', builder: (_, __) => const NewPatientPage()),
+            GoRoute(
+              path: 'signos',
+              builder: (_, s) => VitalsPage(patientLabel: s.extra as String?),
+            ),
             GoRoute(path: 'resultado', builder: (_, __) => const TriageResultPage()),
           ],
         ),

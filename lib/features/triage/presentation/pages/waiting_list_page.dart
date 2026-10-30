@@ -15,7 +15,7 @@ class WaitingListPage extends StatelessWidget {
       title: 'Pacientes en espera',
       subtitle: 'Enfermería · Triage',
       bottom: FilledButton(
-        onPressed: () => context.push('/pacientes/signos'),
+        onPressed: () => context.push('/pacientes/nuevo'),
         child: const Text('+ NUEVO PACIENTE'),
       ),
       child: SpacedList(

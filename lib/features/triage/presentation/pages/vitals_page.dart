@@ -11,7 +11,8 @@ import '../../domain/entities/vital_signs.dart';
 import '../bloc/triage_bloc.dart';
 
 class VitalsPage extends StatefulWidget {
-  const VitalsPage({super.key});
+  const VitalsPage({super.key, this.patientLabel});
+  final String? patientLabel;
 
   @override
   State<VitalsPage> createState() => _VitalsPageState();

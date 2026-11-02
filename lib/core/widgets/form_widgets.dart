@@ -1,25 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_colors.dart';
 
-/// Campo con etiqueta superior, como en el diseño de Figma.
-/// La validación real se agrega en el Hito 4.
+/// Campo con etiqueta superior y validación. Si hay `controller`, se ignora `initialValue`.
 class LabeledField extends StatelessWidget {
   const LabeledField({
     super.key,
     required this.label,
+    this.controller,
     this.initialValue,
     this.hint,
     this.readOnly = false,
     this.suffixIcon,
     this.keyboardType,
+    this.validator,
+    this.inputFormatters,
+    this.onTap,
+    this.maxLines = 1,
+    this.textInputAction,
   });
   final String label;
+  final TextEditingController? controller;
   final String? initialValue;
   final String? hint;
   final bool readOnly;
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+  final List<TextInputFormatter>? inputFormatters;
+  final VoidCallback? onTap;
+  final int maxLines;
+  final TextInputAction? textInputAction;
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +41,16 @@ class LabeledField extends StatelessWidget {
         Text(label, style: const TextStyle(fontSize: 18, color: AppColors.navy)),
         const SizedBox(height: 8),
         TextFormField(
-          initialValue: initialValue,
+          controller: controller,
+          initialValue: controller == null ? initialValue : null,
           readOnly: readOnly,
+          onTap: onTap,
           keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          maxLines: maxLines,
+          textInputAction: textInputAction,
+          validator: validator,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(hintText: hint, suffixIcon: suffixIcon),
         ),
       ],

@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppTheme {
+  static const _errorColor = Color(0xFF7A0000);
+
+  static OutlineInputBorder _border(Color color, double width) => OutlineInputBorder(
+        borderRadius: BorderRadius.circular(9),
+        borderSide: BorderSide(color: color, width: width),
+      );
+
   static ThemeData get light => ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -31,10 +38,13 @@ class AppTheme {
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: AppColors.field,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(9),
-            borderSide: BorderSide.none,
-          ),
+          border: _border(Colors.transparent, 0),
+          enabledBorder: _border(Colors.transparent, 0),
+          focusedBorder: _border(AppColors.navy, 2),
+          errorBorder: _border(_errorColor, 1.5),
+          focusedErrorBorder: _border(_errorColor, 2),
+          errorStyle: const TextStyle(
+              color: _errorColor, fontWeight: FontWeight.bold, fontSize: 13),
         ),
         navigationBarTheme: const NavigationBarThemeData(
           backgroundColor: AppColors.mint,

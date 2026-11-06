@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/form_widgets.dart';
 import '../../../../core/widgets/screen_layout.dart';
+import '../../domain/entities/appointment.dart';
+import '../cubit/appointments_cubit.dart';
 
 class BookAppointmentPage extends StatefulWidget {
   const BookAppointmentPage({super.key});
@@ -95,6 +98,12 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
       );
       return;
     }
+    context.read<AppointmentsCubit>().add(Appointment(
+          specialty: _specialty.text,
+          sede: _sede.text,
+          date: _date.text,
+          time: _time.text,
+        ));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Cita agendada correctamente')),
     );

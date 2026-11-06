@@ -28,7 +28,7 @@ final appRouter = GoRouter(
             GoRoute(path: 'nuevo', builder: (_, __) => const NewPatientPage()),
             GoRoute(
               path: 'signos',
-              builder: (_, s) => VitalsPage(patientLabel: s.extra as String?),
+              builder: (_, __) => const VitalsPage(),
             ),
             GoRoute(path: 'resultado', builder: (_, __) => const TriageResultPage()),
           ],

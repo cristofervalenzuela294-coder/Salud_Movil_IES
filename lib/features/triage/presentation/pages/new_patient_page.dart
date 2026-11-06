@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/form_widgets.dart';
 import '../../../../core/widgets/screen_layout.dart';
+import '../../domain/entities/patient_draft.dart';
+import '../bloc/triage_bloc.dart';
 
 class NewPatientPage extends StatefulWidget {
   const NewPatientPage({super.key});
@@ -36,8 +39,13 @@ class _NewPatientPageState extends State<NewPatientPage> {
       );
       return;
     }
-    context.push('/pacientes/signos',
-        extra: '${_name.text.trim()} · ${_age.text.trim()} años');
+    context.read<TriageBloc>().add(TriageDraftSaved(PatientDraft(
+          dni: _dni.text.trim(),
+          name: _name.text.trim(),
+          age: int.parse(_age.text.trim()),
+          reason: _reason.text.trim(),
+        )));
+    context.push('/pacientes/signos');
   }
 
   @override

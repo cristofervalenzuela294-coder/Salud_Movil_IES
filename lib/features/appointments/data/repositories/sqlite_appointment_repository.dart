@@ -22,4 +22,14 @@ class SqliteAppointmentRepository implements AppointmentRepository {
   Future<void> add(Appointment appointment) async {
     await _dao.insert(appointment);
   }
+
+  @override
+  Future<void> update(Appointment appointment) async {
+    await _dao.update(appointment);
+  }
+
+  @override
+  Future<void> delete(int id) async {
+    await _dao.delete(id);
+  }
 }

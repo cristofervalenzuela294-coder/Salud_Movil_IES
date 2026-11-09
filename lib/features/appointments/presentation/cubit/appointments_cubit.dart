@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/appointment.dart';
 import '../../domain/repositories/appointment_repository.dart';
 
-/// Citas del paciente, guardadas en el repositorio (SQLite en la app real).
+/// CRUD de citas del paciente, guardadas en el repositorio (SQLite en la app real).
 class AppointmentsCubit extends Cubit<List<Appointment>> {
   AppointmentsCubit(this._repository) : super(const []) {
     load();
@@ -15,6 +15,16 @@ class AppointmentsCubit extends Cubit<List<Appointment>> {
 
   Future<void> add(Appointment a) async {
     await _repository.add(a);
-    emit(await _repository.getAll());
+    await load();
+  }
+
+  Future<void> update(Appointment a) async {
+    await _repository.update(a);
+    await load();
+  }
+
+  Future<void> delete(int id) async {
+    await _repository.delete(id);
+    await load();
   }
 }

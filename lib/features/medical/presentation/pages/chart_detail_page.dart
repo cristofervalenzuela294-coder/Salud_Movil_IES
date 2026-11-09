@@ -5,10 +5,43 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/form_widgets.dart';
 import '../../../../core/widgets/screen_layout.dart';
+import '../../../triage/domain/entities/patient.dart';
 import '../../../triage/presentation/bloc/patients_bloc.dart';
 
 class ChartDetailPage extends StatelessWidget {
   const ChartDetailPage({super.key});
+
+  static const _danger = Color(0xFF7A0000);
+
+  Future<void> _confirmDelete(BuildContext context, Patient p) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Eliminar ficha'),
+        content: Text('¿Eliminar la ficha de ${p.name}? Podrá deshacerlo unos segundos.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('CANCELAR')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('ELIMINAR')),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    final bloc = context.read<PatientsBloc>();
+    final messenger = ScaffoldMessenger.of(context);
+    context.pop();
+    bloc.add(PatientDeleted(p));
+    messenger.showSnackBar(SnackBar(
+      content: const Text('Ficha eliminada'),
+      action: SnackBarAction(
+        label: 'DESHACER',
+        onPressed: () => bloc.add(PatientSaved(p)),
+      ),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +106,20 @@ class ChartDetailPage extends StatelessWidget {
                     Text(p.synced ? 'Sincronizada' : 'Pendiente de sincronizar',
                         style: const TextStyle(color: AppColors.navy)),
                   ],
+                ),
+              ),
+              ButtonPair(
+                left: OutlinedButton(
+                  onPressed: () => context.push('/fichas/editar'),
+                  child: const Text('EDITAR'),
+                ),
+                right: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _danger,
+                    side: const BorderSide(color: _danger, width: 2),
+                  ),
+                  onPressed: () => _confirmDelete(context, p),
+                  child: const Text('ELIMINAR'),
                 ),
               ),
             ],

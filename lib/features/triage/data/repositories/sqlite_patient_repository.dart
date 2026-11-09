@@ -26,6 +26,16 @@ class SqlitePatientRepository implements PatientRepository {
   }
 
   @override
+  Future<void> update(Patient patient) async {
+    await _dao.update(patient);
+  }
+
+  @override
+  Future<void> delete(int id) async {
+    await _dao.delete(id);
+  }
+
+  @override
   Future<void> markAllSynced() async {
     await _dao.markAllSynced();
   }

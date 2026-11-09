@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../features/appointments/domain/entities/appointment.dart';
 import '../../features/appointments/presentation/pages/appointments_page.dart';
 import '../../features/appointments/presentation/pages/book_appointment_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -9,6 +10,7 @@ import '../../features/notifications/presentation/pages/notifications_page.dart'
 import '../../features/sedes/presentation/pages/sede_detail_page.dart';
 import '../../features/sedes/presentation/pages/sedes_page.dart';
 import '../../features/sync/presentation/pages/sync_page.dart';
+import '../../features/triage/presentation/pages/edit_patient_page.dart';
 import '../../features/triage/presentation/pages/new_patient_page.dart';
 import '../../features/triage/presentation/pages/triage_result_page.dart';
 import '../../features/triage/presentation/pages/vitals_page.dart';
@@ -26,10 +28,7 @@ final appRouter = GoRouter(
           builder: (_, __) => const WaitingListPage(),
           routes: [
             GoRoute(path: 'nuevo', builder: (_, __) => const NewPatientPage()),
-            GoRoute(
-              path: 'signos',
-              builder: (_, __) => const VitalsPage(),
-            ),
+            GoRoute(path: 'signos', builder: (_, __) => const VitalsPage()),
             GoRoute(path: 'resultado', builder: (_, __) => const TriageResultPage()),
           ],
         ),
@@ -38,13 +37,17 @@ final appRouter = GoRouter(
           builder: (_, __) => const ChartsPage(),
           routes: [
             GoRoute(path: 'detalle', builder: (_, __) => const ChartDetailPage()),
+            GoRoute(path: 'editar', builder: (_, __) => const EditPatientPage()),
           ],
         ),
         GoRoute(
           path: '/citas',
           builder: (_, __) => const AppointmentsPage(),
           routes: [
-            GoRoute(path: 'agendar', builder: (_, __) => const BookAppointmentPage()),
+            GoRoute(
+              path: 'agendar',
+              builder: (_, s) => BookAppointmentPage(initial: s.extra as Appointment?),
+            ),
           ],
         ),
         GoRoute(

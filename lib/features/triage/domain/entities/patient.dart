@@ -23,14 +23,24 @@ class Patient extends Equatable {
   final VitalSigns? vitals;
   final bool synced;
 
-  Patient copyWith({int? id, bool? synced}) => Patient(
+  Patient copyWith({
+    int? id,
+    String? dni,
+    String? name,
+    int? age,
+    String? reason,
+    TriageLevel? level,
+    VitalSigns? vitals,
+    bool? synced,
+  }) =>
+      Patient(
         id: id ?? this.id,
-        name: name,
-        age: age,
-        reason: reason,
-        level: level,
-        dni: dni,
-        vitals: vitals,
+        dni: dni ?? this.dni,
+        name: name ?? this.name,
+        age: age ?? this.age,
+        reason: reason ?? this.reason,
+        level: level ?? this.level,
+        vitals: vitals ?? this.vitals,
         synced: synced ?? this.synced,
       );
 

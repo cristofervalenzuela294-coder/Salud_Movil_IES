@@ -16,6 +16,23 @@ class Appointment extends Equatable {
   final String time;
   final bool confirmed;
 
+  Appointment copyWith({
+    int? id,
+    String? specialty,
+    String? sede,
+    String? date,
+    String? time,
+    bool? confirmed,
+  }) =>
+      Appointment(
+        id: id ?? this.id,
+        specialty: specialty ?? this.specialty,
+        sede: sede ?? this.sede,
+        date: date ?? this.date,
+        time: time ?? this.time,
+        confirmed: confirmed ?? this.confirmed,
+      );
+
   @override
   List<Object?> get props => [id, specialty, sede, date, time, confirmed];
 }

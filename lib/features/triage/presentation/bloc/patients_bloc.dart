@@ -21,6 +21,20 @@ class PatientSaved extends PatientsEvent {
   List<Object?> get props => [patient];
 }
 
+class PatientUpdated extends PatientsEvent {
+  const PatientUpdated(this.patient);
+  final Patient patient;
+  @override
+  List<Object?> get props => [patient];
+}
+
+class PatientDeleted extends PatientsEvent {
+  const PatientDeleted(this.patient);
+  final Patient patient;
+  @override
+  List<Object?> get props => [patient];
+}
+
 class PatientSelected extends PatientsEvent {
   const PatientSelected(this.patient);
   final Patient patient;
@@ -49,12 +63,13 @@ class PatientsState extends Equatable {
   PatientsState copyWith({
     List<Patient>? patients,
     Patient? selected,
+    bool clearSelected = false,
     bool? loading,
     bool? syncing,
   }) =>
       PatientsState(
         patients: patients ?? this.patients,
-        selected: selected ?? this.selected,
+        selected: clearSelected ? null : (selected ?? this.selected),
         loading: loading ?? this.loading,
         syncing: syncing ?? this.syncing,
       );
@@ -63,7 +78,7 @@ class PatientsState extends Equatable {
   List<Object?> get props => [patients, selected, loading, syncing];
 }
 
-/// Lista de pacientes ordenada por prioridad, con estado de sincronización.
+/// CRUD de fichas con orden por prioridad y estado de sincronización.
 class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
   PatientsBloc(this._repository) : super(const PatientsState()) {
     on<PatientsRequested>((e, emit) async => emit(
@@ -71,6 +86,18 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
     on<PatientSaved>((e, emit) async {
       await _repository.add(e.patient);
       emit(state.copyWith(patients: _sorted(await _repository.getAll())));
+    });
+    on<PatientUpdated>((e, emit) async {
+      await _repository.update(e.patient);
+      emit(state.copyWith(
+          patients: _sorted(await _repository.getAll()), selected: e.patient));
+    });
+    on<PatientDeleted>((e, emit) async {
+      final id = e.patient.id;
+      if (id == null) return;
+      await _repository.delete(id);
+      emit(state.copyWith(
+          patients: _sorted(await _repository.getAll()), clearSelected: true));
     });
     on<PatientSelected>((e, emit) => emit(state.copyWith(selected: e.patient)));
     on<SyncRequested>(_onSync);

@@ -8,8 +8,10 @@ import '../../../../core/widgets/screen_layout.dart';
 import '../../domain/entities/appointment.dart';
 import '../cubit/appointments_cubit.dart';
 
+/// Agenda una cita nueva o edita una existente (si recibe [initial]).
 class BookAppointmentPage extends StatefulWidget {
-  const BookAppointmentPage({super.key});
+  const BookAppointmentPage({super.key, this.initial});
+  final Appointment? initial;
 
   @override
   State<BookAppointmentPage> createState() => _BookAppointmentPageState();
@@ -31,6 +33,25 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
   final _time = TextEditingController();
   TimeOfDay? _timeValue;
 
+  bool get _editing => widget.initial != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final a = widget.initial;
+    if (a == null) return;
+    _specialty.text = a.specialty;
+    _sede.text = a.sede;
+    _date.text = a.date;
+    _time.text = a.time;
+    final parts = a.time.split(':');
+    if (parts.length == 2) {
+      final h = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1]);
+      if (h != null && m != null) _timeValue = TimeOfDay(hour: h, minute: m);
+    }
+  }
+
   @override
   void dispose() {
     _specialty.dispose();
@@ -39,6 +60,8 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
     _time.dispose();
     super.dispose();
   }
+
+  String _two(int n) => n.toString().padLeft(2, '0');
 
   Future<void> _pickFromList(
       TextEditingController c, String title, List<String> options) async {
@@ -68,20 +91,17 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
       firstDate: now,
       lastDate: now.add(const Duration(days: 90)),
     );
-    if (d != null) {
-      _date.text =
-          '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
-    }
+    if (d != null) _date.text = '${_two(d.day)}/${_two(d.month)}/${d.year}';
   }
 
   Future<void> _pickTime() async {
     final t = await showTimePicker(
       context: context,
-      initialTime: const TimeOfDay(hour: 9, minute: 0),
+      initialTime: _timeValue ?? const TimeOfDay(hour: 9, minute: 0),
     );
-    if (t == null || !mounted) return;
+    if (t == null) return;
     _timeValue = t;
-    _time.text = t.format(context);
+    _time.text = '${_two(t.hour)}:${_two(t.minute)}';
   }
 
   String? _validateTime(String? v) {
@@ -98,14 +118,28 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
       );
       return;
     }
-    context.read<AppointmentsCubit>().add(Appointment(
-          specialty: _specialty.text,
-          sede: _sede.text,
-          date: _date.text,
-          time: _time.text,
-        ));
+    final cubit = context.read<AppointmentsCubit>();
+    final initial = widget.initial;
+    if (initial != null) {
+      cubit.update(initial.copyWith(
+        specialty: _specialty.text,
+        sede: _sede.text,
+        date: _date.text,
+        time: _time.text,
+      ));
+    } else {
+      cubit.add(Appointment(
+        specialty: _specialty.text,
+        sede: _sede.text,
+        date: _date.text,
+        time: _time.text,
+      ));
+    }
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Cita agendada correctamente')),
+      SnackBar(
+          content: Text(_editing
+              ? 'Cita actualizada correctamente'
+              : 'Cita agendada correctamente')),
     );
     context.go('/citas');
   }
@@ -114,7 +148,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
   Widget build(BuildContext context) {
     const arrow = Icon(Icons.arrow_drop_down);
     return ScreenLayout(
-      title: 'Agendar cita',
+      title: _editing ? 'Editar cita' : 'Agendar cita',
       subtitle: 'Paciente',
       bottom: ButtonPair(
         left: OutlinedButton(
@@ -123,7 +157,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
         ),
         right: FilledButton(
           onPressed: _confirm,
-          child: const Text('CONFIRMAR'),
+          child: Text(_editing ? 'GUARDAR' : 'CONFIRMAR'),
         ),
       ),
       child: Form(

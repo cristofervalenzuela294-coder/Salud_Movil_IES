@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 /// Para cambiar el esquema: agregar una nueva versión aquí y subir [latest].
 /// Nunca se edita una migración que ya se publicó.
 class Migrations {
-  static const latest = 2;
+  static const latest = 3;
 
   static const Map<int, List<String>> _scripts = {
     // v1: tablas base
@@ -41,6 +41,10 @@ class Migrations {
     2: [
       'ALTER TABLE patients ADD COLUMN created_at TEXT',
       'CREATE INDEX idx_patients_level ON patients(level)',
+    ],
+    // v3: identificador de la ficha en el servidor (sincronización REST)
+    3: [
+      'ALTER TABLE patients ADD COLUMN remote_id INTEGER',
     ],
   };
 

@@ -6,6 +6,7 @@ import '../../domain/entities/vital_signs.dart';
 class PatientModel {
   static Map<String, Object?> toMap(Patient p) => {
         if (p.id != null) 'id': p.id,
+        'remote_id': p.remoteId,
         'dni': p.dni,
         'name': p.name,
         'age': p.age,
@@ -23,6 +24,7 @@ class PatientModel {
     final hasVitals = m['systolic'] != null;
     return Patient(
       id: m['id'] as int?,
+      remoteId: m['remote_id'] as int?,
       dni: m['dni'] as String,
       name: m['name'] as String,
       age: m['age'] as int,

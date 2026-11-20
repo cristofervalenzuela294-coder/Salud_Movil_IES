@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/network/api_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/form_widgets.dart';
 import '../../../../core/widgets/item_card.dart';
@@ -12,23 +13,28 @@ class SyncPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PatientsBloc, PatientsState>(
+    return BlocConsumer<PatientsBloc, PatientsState>(
+      listenWhen: (prev, curr) =>
+          prev.syncMessage != curr.syncMessage && curr.syncMessage != null,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(state.syncMessage!)));
+      },
       builder: (context, state) {
-        final canSync = state.pending > 0 && !state.syncing;
         return ScreenLayout(
           title: 'Sincronización',
-          subtitle: 'Sistema',
+          subtitle: 'Servidor: ${ApiConfig.baseUrl}',
           bottom: FilledButton(
-            onPressed: canSync
-                ? () => context.read<PatientsBloc>().add(const SyncRequested())
-                : null,
+            onPressed: state.syncing
+                ? null
+                : () => context.read<PatientsBloc>().add(const SyncRequested()),
             child: Text(state.syncing ? 'SINCRONIZANDO...' : 'SINCRONIZAR AHORA'),
           ),
           child: SpacedList(
             children: [
               OfflineBanner(state.pending == 0
                   ? 'Todo sincronizado'
-                  : 'Sin conexión · ${state.pending} fichas pendientes'),
+                  : '${state.pending} fichas pendientes de enviar'),
               for (final p in state.patients)
                 ItemCard(
                   title: p.name,

@@ -1,8 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/error/failures.dart';
 import '../../domain/entities/patient.dart';
 import '../../domain/repositories/patient_repository.dart';
+import '../../domain/usecases/sync_patients.dart';
 
 abstract class PatientsEvent extends Equatable {
   const PatientsEvent();
@@ -52,11 +54,15 @@ class PatientsState extends Equatable {
     this.selected,
     this.loading = true,
     this.syncing = false,
+    this.syncMessage,
   });
   final List<Patient> patients;
   final Patient? selected;
   final bool loading;
   final bool syncing;
+
+  /// Resultado o error de la última sincronización (para mostrar al usuario).
+  final String? syncMessage;
 
   int get pending => patients.where((p) => !p.synced).length;
 
@@ -66,21 +72,26 @@ class PatientsState extends Equatable {
     bool clearSelected = false,
     bool? loading,
     bool? syncing,
+    String? syncMessage,
+    bool clearMessage = false,
   }) =>
       PatientsState(
         patients: patients ?? this.patients,
         selected: clearSelected ? null : (selected ?? this.selected),
         loading: loading ?? this.loading,
         syncing: syncing ?? this.syncing,
+        syncMessage: clearMessage ? null : (syncMessage ?? this.syncMessage),
       );
 
   @override
-  List<Object?> get props => [patients, selected, loading, syncing];
+  List<Object?> get props => [patients, selected, loading, syncing, syncMessage];
 }
 
-/// CRUD de fichas con orden por prioridad y estado de sincronización.
+/// CRUD de fichas con orden por prioridad y sincronización con el servidor.
 class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
-  PatientsBloc(this._repository) : super(const PatientsState()) {
+  PatientsBloc(this._repository, {SyncPatients? sync})
+      : _sync = sync,
+        super(const PatientsState()) {
     on<PatientsRequested>((e, emit) async => emit(
         state.copyWith(patients: _sorted(await _repository.getAll()), loading: false)));
     on<PatientSaved>((e, emit) async {
@@ -105,6 +116,7 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
   }
 
   final PatientRepository _repository;
+  final SyncPatients? _sync;
 
   List<Patient> _sorted(List<Patient> list) {
     final copy = [...list];
@@ -116,11 +128,33 @@ class PatientsBloc extends Bloc<PatientsEvent, PatientsState> {
   }
 
   Future<void> _onSync(SyncRequested e, Emitter<PatientsState> emit) async {
-    if (state.syncing || state.pending == 0) return;
-    emit(state.copyWith(syncing: true));
-    // Simulación. En el Hito 8 aquí se llama a la API REST.
-    await Future<void>.delayed(const Duration(milliseconds: 1200));
-    await _repository.markAllSynced();
-    emit(state.copyWith(patients: _sorted(await _repository.getAll()), syncing: false));
+    if (state.syncing) return;
+    final sync = _sync;
+    if (sync == null) {
+      // Sin servicio web (pruebas): se marcan como enviadas en local.
+      if (state.pending == 0) return;
+      emit(state.copyWith(syncing: true));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      await _repository.markAllSynced();
+      emit(state.copyWith(patients: _sorted(await _repository.getAll()), syncing: false));
+      return;
+    }
+    emit(state.copyWith(syncing: true, clearMessage: true));
+    try {
+      final result = await sync();
+      emit(state.copyWith(
+        patients: _sorted(await _repository.getAll()),
+        syncing: false,
+        syncMessage: result.summary,
+      ));
+    } on Failure catch (f) {
+      emit(state.copyWith(
+        patients: _sorted(await _repository.getAll()),
+        syncing: false,
+        syncMessage: f.message,
+      ));
+    } catch (_) {
+      emit(state.copyWith(syncing: false, syncMessage: 'Error inesperado al sincronizar'));
+    }
   }
 }

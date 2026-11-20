@@ -1,8 +1,9 @@
-import "package:equatable/equatable.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import "../../domain/entities/app_user.dart";
-import "../../domain/usecases/login_usecase.dart";
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/app_user.dart';
+import '../../domain/usecases/login_usecase.dart';
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
@@ -59,8 +60,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthSuccess(await _login(e.username, e.password)));
     } on ArgumentError catch (err) {
       emit(AuthFailure(err.message.toString()));
+    } on Failure catch (f) {
+      emit(AuthFailure(f.message));
     } catch (_) {
-      emit(const AuthFailure("No se pudo iniciar sesión"));
+      emit(const AuthFailure('No se pudo iniciar sesión'));
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -11,13 +12,18 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/triage/data/datasources/patient_dao.dart';
+import '../../features/triage/data/datasources/patient_remote_data_source.dart';
 import '../../features/triage/data/repositories/in_memory_patient_repository.dart';
 import '../../features/triage/data/repositories/sqlite_patient_repository.dart';
+import '../../features/triage/domain/repositories/patient_remote.dart';
 import '../../features/triage/domain/repositories/patient_repository.dart';
+import '../../features/triage/domain/usecases/sync_patients.dart';
 import '../../features/triage/domain/usecases/triage_calculator.dart';
 import '../../features/triage/presentation/bloc/patients_bloc.dart';
 import '../../features/triage/presentation/bloc/triage_bloc.dart';
 import '../database/app_database.dart';
+import '../network/api_client.dart';
+import '../network/auth_session.dart';
 
 final getIt = GetIt.instance;
 
@@ -27,10 +33,13 @@ Future<void> setupDependencies({bool inMemory = false}) async {
   if (getIt.isRegistered<AuthRepository>()) return;
 
   getIt
-    ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl())
+    ..registerLazySingleton(() => AuthSession())
+    ..registerLazySingleton<Dio>(() => createDio(getIt()))
+    ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(getIt(), getIt()))
     ..registerLazySingleton(() => LoginUseCase(getIt()))
     ..registerFactory(() => AuthBloc(getIt()))
-    ..registerLazySingleton(() => const TriageCalculator());
+    ..registerLazySingleton(() => const TriageCalculator())
+    ..registerLazySingleton<PatientRemote>(() => PatientRemoteDataSource(getIt()));
 
   if (inMemory) {
     getIt
@@ -52,7 +61,8 @@ Future<void> setupDependencies({bool inMemory = false}) async {
   }
 
   getIt
-    ..registerFactory(() => PatientsBloc(getIt()))
+    ..registerLazySingleton(() => SyncPatients(getIt(), getIt()))
+    ..registerFactory(() => PatientsBloc(getIt(), sync: getIt<SyncPatients>()))
     ..registerFactory(() => TriageBloc(getIt()))
     ..registerFactory(() => AppointmentsCubit(getIt()));
 }

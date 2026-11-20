@@ -6,6 +6,7 @@ import 'vital_signs.dart';
 class Patient extends Equatable {
   const Patient({
     this.id,
+    this.remoteId,
     required this.name,
     required this.age,
     required this.reason,
@@ -15,6 +16,9 @@ class Patient extends Equatable {
     this.synced = false,
   });
   final int? id;
+
+  /// Identificador de la ficha en el servidor (null si nunca se envió).
+  final int? remoteId;
   final String name;
   final int age;
   final String reason;
@@ -25,6 +29,7 @@ class Patient extends Equatable {
 
   Patient copyWith({
     int? id,
+    int? remoteId,
     String? dni,
     String? name,
     int? age,
@@ -35,6 +40,7 @@ class Patient extends Equatable {
   }) =>
       Patient(
         id: id ?? this.id,
+        remoteId: remoteId ?? this.remoteId,
         dni: dni ?? this.dni,
         name: name ?? this.name,
         age: age ?? this.age,
@@ -45,5 +51,6 @@ class Patient extends Equatable {
       );
 
   @override
-  List<Object?> get props => [id, name, age, reason, level, dni, vitals, synced];
+  List<Object?> get props =>
+      [id, remoteId, name, age, reason, level, dni, vitals, synced];
 }

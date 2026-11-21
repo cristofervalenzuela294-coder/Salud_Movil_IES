@@ -25,3 +25,8 @@ class ServerFailure extends Failure {
   const ServerFailure(this.statusCode, String message) : super(message);
   final int statusCode;
 }
+
+/// GPS apagado, permiso denegado o ubicación no disponible.
+class LocationFailure extends Failure {
+  const LocationFailure(super.message);
+}

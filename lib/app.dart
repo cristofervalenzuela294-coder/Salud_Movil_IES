@@ -5,6 +5,7 @@ import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/appointments/presentation/cubit/appointments_cubit.dart';
+import 'features/sedes/presentation/cubit/location_cubit.dart';
 import 'features/triage/presentation/bloc/patients_bloc.dart';
 import 'features/triage/presentation/bloc/triage_bloc.dart';
 
@@ -18,6 +19,7 @@ class SaludMovilApp extends StatelessWidget {
         BlocProvider(create: (_) => getIt<PatientsBloc>()),
         BlocProvider(create: (_) => getIt<TriageBloc>()),
         BlocProvider(create: (_) => getIt<AppointmentsCubit>()),
+        BlocProvider(create: (_) => getIt<LocationCubit>()),
       ],
       child: MaterialApp.router(
         title: 'SaludMovil IES',

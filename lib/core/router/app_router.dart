@@ -7,6 +7,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/medical/presentation/pages/chart_detail_page.dart';
 import '../../features/medical/presentation/pages/charts_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
+import '../../features/sedes/domain/entities/sede.dart';
 import '../../features/sedes/presentation/pages/sede_detail_page.dart';
 import '../../features/sedes/presentation/pages/sedes_page.dart';
 import '../../features/sync/presentation/pages/sync_page.dart';
@@ -54,7 +55,10 @@ final appRouter = GoRouter(
           path: '/mapa',
           builder: (_, __) => const SedesPage(),
           routes: [
-            GoRoute(path: 'sede', builder: (_, __) => const SedeDetailPage()),
+            GoRoute(
+              path: 'sede',
+              builder: (_, s) => SedeDetailPage(sede: s.extra as Sede?),
+            ),
           ],
         ),
         GoRoute(path: '/avisos', builder: (_, __) => const NotificationsPage()),

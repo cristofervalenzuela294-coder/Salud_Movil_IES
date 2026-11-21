@@ -11,6 +11,7 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/sedes/presentation/cubit/location_cubit.dart';
 import '../../features/triage/data/datasources/patient_dao.dart';
 import '../../features/triage/data/datasources/patient_remote_data_source.dart';
 import '../../features/triage/data/repositories/in_memory_patient_repository.dart';
@@ -22,6 +23,8 @@ import '../../features/triage/domain/usecases/triage_calculator.dart';
 import '../../features/triage/presentation/bloc/patients_bloc.dart';
 import '../../features/triage/presentation/bloc/triage_bloc.dart';
 import '../database/app_database.dart';
+import '../location/geolocator_location_service.dart';
+import '../location/location_service.dart';
 import '../network/api_client.dart';
 import '../network/auth_session.dart';
 
@@ -39,7 +42,8 @@ Future<void> setupDependencies({bool inMemory = false}) async {
     ..registerLazySingleton(() => LoginUseCase(getIt()))
     ..registerFactory(() => AuthBloc(getIt()))
     ..registerLazySingleton(() => const TriageCalculator())
-    ..registerLazySingleton<PatientRemote>(() => PatientRemoteDataSource(getIt()));
+    ..registerLazySingleton<PatientRemote>(() => PatientRemoteDataSource(getIt()))
+    ..registerLazySingleton<LocationService>(() => GeolocatorLocationService());
 
   if (inMemory) {
     getIt
@@ -64,5 +68,6 @@ Future<void> setupDependencies({bool inMemory = false}) async {
     ..registerLazySingleton(() => SyncPatients(getIt(), getIt()))
     ..registerFactory(() => PatientsBloc(getIt(), sync: getIt<SyncPatients>()))
     ..registerFactory(() => TriageBloc(getIt()))
-    ..registerFactory(() => AppointmentsCubit(getIt()));
+    ..registerFactory(() => AppointmentsCubit(getIt()))
+    ..registerFactory(() => LocationCubit(getIt()));
 }

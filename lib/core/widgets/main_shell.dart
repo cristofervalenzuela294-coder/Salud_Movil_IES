@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'gradient_background.dart';
 
-/// Marco común de la app: fondo degradado y barra de navegación inferior.
+/// Marco común de la app: fondo degradado, barra inferior y avisos push en pantalla.
 class MainShell extends StatelessWidget {
   const MainShell({super.key, required this.child});
   final Widget child;
@@ -21,27 +23,37 @@ class MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
-    return Scaffold(
-      body: GradientBackground(
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-            child: child,
+    return BlocListener<NotificationsCubit, NotificationsState>(
+      listenWhen: (prev, curr) => prev.banner != curr.banner && curr.banner != null,
+      listener: (context, state) {
+        final n = state.banner!;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${n.title}\n${n.body}'),
+          action: SnackBarAction(label: 'VER', onPressed: () => context.go('/avisos')),
+        ));
+      },
+      child: Scaffold(
+        body: GradientBackground(
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+              child: child,
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _indexFor(location),
-        onDestinationSelected: (i) => context.go(_paths[i]),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Inicio'),
-          NavigationDestination(icon: Icon(Icons.event_outlined), label: 'Citas'),
-          NavigationDestination(icon: Icon(Icons.map_outlined), label: 'Mapa'),
-          NavigationDestination(
-              icon: Icon(Icons.notifications_outlined), label: 'Avisos'),
-          NavigationDestination(icon: Icon(Icons.sync), label: 'Sync'),
-        ],
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _indexFor(location),
+          onDestinationSelected: (i) => context.go(_paths[i]),
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Inicio'),
+            NavigationDestination(icon: Icon(Icons.event_outlined), label: 'Citas'),
+            NavigationDestination(icon: Icon(Icons.map_outlined), label: 'Mapa'),
+            NavigationDestination(
+                icon: Icon(Icons.notifications_outlined), label: 'Avisos'),
+            NavigationDestination(icon: Icon(Icons.sync), label: 'Sync'),
+          ],
+        ),
       ),
     );
   }

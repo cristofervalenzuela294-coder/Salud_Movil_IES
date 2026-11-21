@@ -11,6 +11,7 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/notifications/presentation/cubit/notifications_cubit.dart';
 import '../../features/sedes/presentation/cubit/location_cubit.dart';
 import '../../features/triage/data/datasources/patient_dao.dart';
 import '../../features/triage/data/datasources/patient_remote_data_source.dart';
@@ -27,6 +28,10 @@ import '../location/geolocator_location_service.dart';
 import '../location/location_service.dart';
 import '../network/api_client.dart';
 import '../network/auth_session.dart';
+import '../push/fcm_push_service.dart';
+import '../push/noop_push_service.dart';
+import '../push/push_service.dart';
+import '../push/push_support.dart';
 
 final getIt = GetIt.instance;
 
@@ -43,7 +48,9 @@ Future<void> setupDependencies({bool inMemory = false}) async {
     ..registerFactory(() => AuthBloc(getIt()))
     ..registerLazySingleton(() => const TriageCalculator())
     ..registerLazySingleton<PatientRemote>(() => PatientRemoteDataSource(getIt()))
-    ..registerLazySingleton<LocationService>(() => GeolocatorLocationService());
+    ..registerLazySingleton<LocationService>(() => GeolocatorLocationService())
+    ..registerLazySingleton<PushService>(
+        () => pushSupported ? FcmPushService() : NoopPushService());
 
   if (inMemory) {
     getIt
@@ -69,5 +76,6 @@ Future<void> setupDependencies({bool inMemory = false}) async {
     ..registerFactory(() => PatientsBloc(getIt(), sync: getIt<SyncPatients>()))
     ..registerFactory(() => TriageBloc(getIt()))
     ..registerFactory(() => AppointmentsCubit(getIt()))
-    ..registerFactory(() => LocationCubit(getIt()));
+    ..registerFactory(() => LocationCubit(getIt()))
+    ..registerFactory(() => NotificationsCubit(getIt()));
 }

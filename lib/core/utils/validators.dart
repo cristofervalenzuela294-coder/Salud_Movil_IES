@@ -2,7 +2,7 @@
 /// Devuelven `null` si el valor es válido, o el mensaje de error.
 class Validators {
   static String? required(String? v, String field) {
-    if (v == null || v.trim().isEmpty) return '$field es obligatorio';
+    if (v == null || v.trim().isEmpty) return '$field: campo obligatorio';
     return null;
   }
 

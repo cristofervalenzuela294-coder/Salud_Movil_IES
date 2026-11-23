@@ -1,12 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:saludmovil_ies/app.dart';
-import 'package:saludmovil_ies/core/di/injection.dart';
+
+import 'helpers/test_app.dart';
 
 void main() {
-  testWidgets('Muestra la pantalla de inicio de sesión', (tester) async {
-    await setupDependencies(inMemory: true);
-    await tester.pumpWidget(const SaludMovilApp());
-    await tester.pumpAndSettle();
+  testWidgets('la app arranca en la pantalla de inicio de sesión', (tester) async {
+    await pumpApp(tester);
     expect(find.text('Salud Movil IES'), findsOneWidget);
     expect(find.text('INGRESAR'), findsOneWidget);
   });
